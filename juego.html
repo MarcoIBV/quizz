@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Suelos</title>
+    <style>
+        /* Estilos globales */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Video de fondo */
+        .background-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(50%);
+        }
+
+        /* Contenedor principal */
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            color: white;
+        }
+
+        /* Pantalla de inicio */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #start-screen h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        #start-screen button {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        #start-screen button:hover {
+            background-color: #218838;
+        }
+
+        /* Preguntas del quiz */
+        #quiz-screen {
+            display: none;
+            flex-direction: column;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .answers button {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1.2rem;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .answers button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Temporizador */
+        #timer {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para dispositivos móviles */
+        @media (max-width: 768px) {
+            #start-screen h1 {
+                font-size: 2rem;
+            }
+
+            #start-screen button {
+                font-size: 1.2rem;
+                padding: 10px 20px;
+            }
+
+            .answers button {
+                font-size: 1rem;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Video de fondo -->
+    <video autoplay muted loop class="background-video">
+        <source src="https://www.w3schools.com/howto/rain.mp4" type="video/mp4">
+    </video>
+
+    <!-- Contenedor del quiz -->
+    <div class="quiz-container">
+
+        <!-- Pantalla de inicio -->
+        <div id="start-screen">
+            <h>Instituto Tecnologico Superior de Zacapoaxtla</h1>
+            <h1>Quiz de Suelos</h1>
+            <h2>Integrantes</h2>
+            <center><img src="img1.png" alt="" width="20%"></center>
+            <h2>Kimberly Emireth Ortigoza Mendez</h2>
+            <center><img src="img2.png" alt="" width="20%"></center>
+            <h2>Karol robles Balderrabano</h2>
+            <center><img src="img3.png" alt="" width="20%"></center>
+            <h2>Juan Pablo Ramos Gamboa</h2>    
+           
+            <button onclick="startQuiz()">Iniciar Quiz</button>
+        </div>
+
+        <!-- Pantalla del quiz -->
+        <div id="quiz-screen">
+            <div id="timer">Tiempo: <span id="time">60</span> segundos</div>
+            <div class="question" id="question-text"></div>
+            <div class="answers" id="answer-buttons"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        // Variables del quiz
+        const questions = [
+            {
+                question: "¿Qué es un suelo?",
+                answers: [
+                    { text: "Tierra", correct: false },
+                    { text: "Sistemas naturales dinámicos vivos que desempeñan funciones", correct: true },
+                    { text: "Materia prima", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuántos tipos de rocas hay?",
+                answers: [
+                    { text: "2", correct: false },
+                    { text: "7", correct: false },
+                    { text: "3", correct: true }
+                ]
+            },
+            {
+                question: "Es uno de los factores formadores del suelo",
+                answers: [
+                    { text: "Ph", correct: false },
+                    { text: "clima", correct: true },
+                    { text: "edafogénesis", correct: false }
+                ]
+            },
+            {
+                question: "Una propiedad química del suelo es",
+                answers: [
+                    { text: "Porosidad", correct: false },
+                    { text: "meteorización", correct: false },
+                    { text: "intercambio catiónico", correct: true }
+                ]
+            },
+            {
+                question: "Se caracterizan porque son fijadoras de nitrógeno",
+                answers: [
+                    { text: "Bióticos", correct: false },
+                    { text: "Azotobacter", correct: true },
+                    { text: "ley del mínimo", correct: false }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let time = 60;
+        let timerInterval;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const questionText = document.getElementById('question-text');
+        const answerButtons = document.getElementById('answer-buttons');
+        const timeDisplay = document.getElementById('time');
+
+        function startQuiz() {
+            startScreen.style.display = 'none';
+            quizScreen.style.display = 'flex';
+            currentQuestionIndex = 0;
+            score = 0;
+            time = 60;
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                time--;
+                timeDisplay.textContent = time;
+                if (time <= 0) {
+                    clearInterval(timerInterval);
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            resetState();
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = currentQuestion.question;
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer.text;
+                button.classList.add('btn');
+                button.onclick = () => selectAnswer(answer);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            answerButtons.innerHTML = '';
+        }
+
+        function selectAnswer(answer) {
+            if (answer.correct) {
+                score++;
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            quizScreen.innerHTML = `<h2>Has completado el quiz!</h2>
+                                    <p>Puntuación: ${score} de ${questions.length}</p>`;
+        }
+    </script>
+
+</body>
+</html>
